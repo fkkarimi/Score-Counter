@@ -1,23 +1,197 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>جمع نمره‌های برگه</title>
 <style>
-:root{font-family:Tahoma,Arial,sans-serif;color:#17202a;background:#f5f6f8}*{box-sizing:border-box}body{margin:0;padding:16px;max-width:760px;margin-inline:auto}.card{background:white;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 2px 12px #0000000b}h1{font-size:1.35rem;margin:4px 0 10px}p{line-height:1.8;margin:8px 0}.camera{width:100%;background:#111;border-radius:12px;min-height:220px;max-height:55vh;object-fit:contain}button,input{font:inherit;border-radius:10px;padding:11px;border:1px solid #cbd2d9}button{background:#174ea6;color:white;border:0;font-weight:bold;cursor:pointer}button.secondary{background:#e8edf5;color:#17202a}button.danger{background:#9b2424}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.row{display:flex;gap:8px;align-items:center}.row input{min-width:0;width:100%}.score{font-size:2.5rem;font-weight:700;text-align:center;margin:8px}.muted{font-size:.9rem;color:#5d6874}.list{padding:0;list-style:none;margin:8px 0}.list li{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid #eee}.pill{background:#edf2fa;border-radius:99px;padding:4px 9px}.warning{background:#fff5d9;border:1px solid #f0d786;padding:10px;border-radius:10px}.status{font-size:.9rem;margin-top:8px;min-height:1.5em}
-</style></head>
+:root{font-family:Tahoma,Arial,sans-serif;color:#17202a;background:#f5f6f8}
+*{box-sizing:border-box}
+body{margin:0;padding:16px;max-width:760px;margin-inline:auto}
+.card{background:white;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 2px 12px #0000000b}
+h1{font-size:1.35rem;margin:4px 0 10px}
+p{line-height:1.8;margin:8px 0}
+#redCanvas{display:block;width:100%;height:auto;max-height:55vh;object-fit:contain;background:#111;border-radius:12px}
+#video{display:none}
+button,input{font:inherit;border-radius:10px;padding:11px;border:1px solid #cbd2d9}
+button{background:#174ea6;color:white;border:0;font-weight:bold;cursor:pointer}
+button.secondary{background:#e8edf5;color:#17202a}
+button.danger{background:#9b2424}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.row{display:flex;gap:8px;align-items:center}
+.row input{min-width:0;width:100%}
+.score{font-size:2.5rem;font-weight:700;text-align:center;margin:8px}
+.muted{font-size:.9rem;color:#5d6874}
+.list{padding:0;list-style:none;margin:8px 0}
+.list li{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid #eee}
+.pill{background:#edf2fa;border-radius:99px;padding:4px 9px}
+.warning{background:#fff5d9;border:1px solid #f0d786;padding:10px;border-radius:10px}
+.status{font-size:.9rem;margin-top:8px;min-height:1.5em}
+</style>
+</head>
 <body>
-<div class="card"><h1>جمع نمره‌های برگه</h1><p class="muted">نمونهٔ اولیه برای گوشی؛ دوربین زنده، ثبت نمره‌ها و جمع چند صفحه.</p><div class="warning">در این نسخه، تشخیص خودکار عددهای قرمز هنوز فعال نیست؛ نمره‌های تشخیص‌داده‌شده را فعلاً خودتان تأیید و ثبت کنید. این نسخه برای آزمایش گردش کار است، نه تصحیح خودکار نهایی.</div></div>
-<div class="card"><h2>۱. دوربین زنده</h2><video id="video" class="camera" autoplay playsinline muted></video>
-<canvas id="redCanvas" style="width:100%;height:auto;border-radius:12px;background:#eee"></canvas><div class="actions"><button id="start">فعال‌کردن دوربین</button><button id="stop" class="secondary">خاموش‌کردن دوربین</button></div><div id="camStatus" class="status muted">برای شروع، اجازهٔ دسترسی به دوربین را بدهید.</div></div>
-<div class="card"><h2>۲. نمره‌های این دانش‌آموز</h2><div class="score" id="total">۰</div><p class="muted" style="text-align:center">مجموع ثبت‌شده</p><div class="row"><input id="scoreInput" inputmode="decimal" placeholder="مثلاً ۰٫۷۵ یا ۱٫۵" aria-label="نمره"/><button id="add">ثبت نمره</button></div><p class="muted">عدد را با نقطه یا ممیز وارد کنید؛ مانند 1.5 یا ۰٫۷۵.</p><ul id="scores" class="list"></ul><div class="actions"><button id="undo" class="secondary">حذف آخرین نمره</button><button id="page" class="secondary">صفحهٔ بعد</button><button id="next" class="danger">ثبت و دانش‌آموز بعدی</button></div><div id="status" class="status" aria-live="polite"></div></div>
+<div class="card">
+<h1>جمع نمره‌های برگه</h1>
+<p class="muted">دوربین زنده، بررسی رنگ قرمز و جمع نمره‌های چند صفحه.</p>
+<div class="warning">این نسخه ناحیه‌های قرمز را مشخص می‌کند، اما هنوز عدد دست‌نویس را نمی‌خواند. نمره‌ها را فعلاً دستی ثبت کنید.</div>
+</div>
+<div class="card">
+<h2>۱. دوربین زنده</h2>
+<video id="video" autoplay playsinline muted></video>
+<canvas id="redCanvas"></canvas>
+<div class="actions">
+<button id="start">فعال‌کردن دوربین</button>
+<button id="stop" class="secondary">خاموش‌کردن دوربین</button>
+</div>
+<div id="camStatus" class="status muted">برای شروع، اجازهٔ دسترسی به دوربین را بدهید.</div>
+</div>
+<div class="card">
+<h2>۲. نمره‌های این دانش‌آموز</h2>
+<div class="score" id="total">۰</div>
+<p class="muted" style="text-align:center">مجموع ثبت‌شده</p>
+<div class="row">
+<input id="scoreInput" inputmode="decimal" placeholder="مثلاً ۰٫۷۵ یا ۱٫۵" aria-label="نمره">
+<button id="add">ثبت نمره</button>
+</div>
+<p class="muted">عدد را با نقطه یا ممیز وارد کنید؛ مانند 1.5 یا ۰٫۷۵.</p>
+<ul id="scores" class="list"></ul>
+<div class="actions">
+<button id="undo" class="secondary">حذف آخرین نمره</button>
+<button id="page" class="secondary">صفحهٔ بعد</button>
+<button id="next" class="danger">ثبت و دانش‌آموز بعدی</button>
+</div>
+<div id="status" class="status" aria-live="polite"></div>
+</div>
 <script>
-const $=id=>document.getElementById(id);let stream=null,scores=[],pageNo=1,studentNo=1;
+const $=id=>document.getElementById(id);
+let stream=null,scores=[],pageNo=1,studentNo=1,scanTimer=null;
+const video=$('video'),canvas=$('redCanvas');
+const ctx=canvas.getContext('2d',{willReadFrequently:true});
+const sample=document.createElement('canvas');
+sample.width=320;sample.height=240;
+const sctx=sample.getContext('2d',{willReadFrequently:true});
 const fa=n=>String(n).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[+d]).replace('.', '٫');
-function render(){ $('total').textContent=fa(Number(scores.reduce((a,b)=>a+b,0).toFixed(4)));$('scores').innerHTML='';scores.forEach((s,i)=>{let li=document.createElement('li');let left=document.createElement('span');left.textContent=`نمره ${fa(i+1)} · صفحه ${fa(s.page)}`;let right=document.createElement('span');right.className='pill';right.textContent=fa(s.value);li.append(left,right);$('scores').append(li)});}
-$('start').onclick=async()=>{try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});$('video').srcObject=stream;$('camStatus').textContent='دوربین فعال است. تصویر زنده نمایش داده می‌شود.';}catch(e){$('camStatus').textContent='دسترسی به دوربین ممکن نشد. صفحه را در مرورگر و از یک نشانی امن (HTTPS) باز کنید و مجوز دوربین را بدهید.';}};
-$('stop').onclick=()=>{if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;$('video').srcObject=null;}$('camStatus').textContent='دوربین خاموش است.'};
-function parseVal(v){v=v.trim().replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace('٫','.').replace(',','.');if(!v||!Number.isFinite(Number(v))||Number(v)<0)return null;return Number(v)}
-$('add').onclick=()=>{let v=parseVal($('scoreInput').value);if(v===null){$('status').textContent='یک نمرهٔ معتبر و غیرمنفی وارد کنید.';return;}scores.push({value:v,page:pageNo});$('scoreInput').value='';render();$('status').textContent=`نمره ${fa(v)} ثبت شد.`};$('scoreInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('add').click()});
-$('undo').onclick=()=>{if(scores.length){scores.pop();render();$('status').textContent='آخرین نمره حذف شد.'}else $('status').textContent='هنوز نمره‌ای ثبت نشده است.'};$('page').onclick=()=>{pageNo++;$('status').textContent=`صفحه ${fa(pageNo)}؛ جمع قبلی حفظ شد.`};$('next').onclick=()=>{let final=Number(scores.reduce((a,b)=>a+b.value,0).toFixed(4));let msg=`دانش‌آموز ${fa(studentNo)}: مجموع ${fa(final)} از ${fa(scores.length)} نمره ثبت‌شده.`;studentNo++;scores=[];pageNo=1;render();$('status').textContent=msg+' آمادهٔ دانش‌آموز بعدی هستید.'};render();
-</script></body></html>
+
+function render(){
+  $('total').textContent=fa(Number(scores.reduce((a,b)=>a+b.value,0).toFixed(4)));
+  $('scores').innerHTML='';
+  scores.forEach((s,i)=>{
+    const li=document.createElement('li');
+    const left=document.createElement('span');
+    left.textContent='نمره '+fa(i+1)+' · صفحه '+fa(s.page);
+    const right=document.createElement('span');
+    right.className='pill';
+    right.textContent=fa(s.value);
+    li.append(left,right);
+    $('scores').append(li);
+  });
+}
+
+function scanRed(){
+  if(!video.videoWidth||video.readyState<2)return;
+  const w=video.videoWidth,h=video.videoHeight;
+  if(canvas.width!==w||canvas.height!==h){
+    canvas.width=w;canvas.height=h;
+  }
+  ctx.drawImage(video,0,0,w,h);
+  sctx.drawImage(video,0,0,320,240);
+  const image=sctx.getImageData(0,0,320,240);
+  const d=image.data,mask=new Uint8Array(320*240);
+  for(let i=0,p=0;i<d.length;i+=4,p++){
+    const r=d[i],g=d[i+1],b=d[i+2];
+    if(r>100&&r>g*1.35&&r>b*1.25&&g<170)mask[p]=1;
+  }
+  const seen=new Uint8Array(mask.length);
+  const queue=new Int32Array(mask.length);
+  let count=0;
+  for(let p=0;p<mask.length;p++){
+    if(!mask[p]||seen[p])continue;
+    let head=0,tail=0;
+    queue[tail++]=p;seen[p]=1;
+    let minX=320,minY=240,maxX=0,maxY=0,pixels=0;
+    while(head<tail){
+      const q=queue[head++],x=q%320,y=Math.floor(q/320);
+      minX=Math.min(minX,x);minY=Math.min(minY,y);
+      maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);pixels++;
+      for(let dy=-1;dy<=1;dy++){
+        for(let dx=-1;dx<=1;dx++){
+          const nx=x+dx,ny=y+dy;
+          if(nx<0||nx>=320||ny<0||ny>=240)continue;
+          const np=ny*320+nx;
+          if(mask[np]&&!seen[np]){seen[np]=1;queue[tail++]=np;}
+        }
+      }
+    }
+    if(pixels>=5){
+      ctx.strokeStyle='#00d26a';
+      ctx.lineWidth=Math.max(2,w/320);
+      ctx.strokeRect(minX*w/320,minY*h/240,
+        (maxX-minX+1)*w/320,(maxY-minY+1)*h/240);
+      count++;
+    }
+  }
+  $('camStatus').textContent='دوربین فعال است؛ '+fa(count)+' ناحیهٔ قرمز پیدا شد. این تعداد، تعداد نمره‌ها نیست.';
+}
+
+$('start').onclick=async()=>{
+  try{
+    if(stream)stream.getTracks().forEach(t=>t.stop());
+    stream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:'environment'}},audio:false
+    });
+    video.srcObject=stream;
+    await video.play();
+    if(scanTimer)clearInterval(scanTimer);
+    scanTimer=setInterval(scanRed,400);
+    scanRed();
+    $('camStatus').textContent='دوربین فعال است؛ تصویر در حال بررسی است.';
+  }catch(e){
+    $('camStatus').textContent='دوربین فعال نشد. مجوز دوربین و اتصال HTTPS را بررسی کنید.';
+  }
+};
+
+$('stop').onclick=()=>{
+  if(scanTimer){clearInterval(scanTimer);scanTimer=null;}
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  video.srcObject=null;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  $('camStatus').textContent='دوربین خاموش است.';
+};
+
+function parseVal(v){
+  v=v.trim()
+    .replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+    .replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+    .replace('٫','.').replace(',','.');
+  if(!v||!Number.isFinite(Number(v))||Number(v)<0)return null;
+  return Number(v);
+}
+
+$('add').onclick=()=>{
+  const v=parseVal($('scoreInput').value);
+  if(v===null){$('status').textContent='یک نمرهٔ معتبر و غیرمنفی وارد کنید.';return;}
+  scores.push({value:v,page:pageNo});
+  $('scoreInput').value='';
+  render();
+  $('status').textContent='نمرهٔ '+fa(v)+' ثبت شد.';
+};
+$('scoreInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('add').click();});
+$('undo').onclick=()=>{
+  if(scores.length){scores.pop();render();$('status').textContent='آخرین نمره حذف شد.';}
+  else $('status').textContent='هنوز نمره‌ای ثبت نشده است.';
+};
+$('page').onclick=()=>{
+  pageNo++;
+  $('status').textContent='صفحهٔ '+fa(pageNo)+'؛ جمع قبلی حفظ شد.';
+};
+$('next').onclick=()=>{
+  const final=Number(scores.reduce((a,b)=>a+b.value,0).toFixed(4));
+  const msg='دانش‌آموز '+fa(studentNo)+': مجموع '+fa(final)+
+    ' از '+fa(scores.length)+' نمرهٔ ثبت‌شده.';
+  studentNo++;scores=[];pageNo=1;render();
+  $('status').textContent=msg+' آمادهٔ دانش‌آموز بعدی هستید.';
+};
+render();
+</script>
+</body>
+  </html>
